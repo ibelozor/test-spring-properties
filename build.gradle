@@ -1,0 +1,78 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+plugins {
+    // https://docs.spring.io/spring-boot/docs/2.1.2.RELEASE/gradle-plugin/reference/html/
+    //id "org.springframework.boot" version "2.1.2.RELEASE"
+    id 'java'
+    // https://kotlinlang.org/docs/reference/compiler-plugins.html
+    id "org.jetbrains.kotlin.jvm" version "1.3.20"
+    id "org.jetbrains.kotlin.plugin.spring" version "1.3.20"
+    //id "org.jetbrains.kotlin.plugin.jpa" version "1.3.20"
+    //id "org.jetbrains.kotlin.plugin.noarg" version "1.3.20"
+    //id "org.jetbrains.kotlin.plugin.allopen" version "1.3.20"
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+// kapt-plugin usage: https://info.michael-simons.eu/2018/07/15/spring-boots-configuration-metadata-with-kotlin/
+apply plugin: 'idea'
+apply plugin: 'kotlin-kapt'
+idea {
+    module {
+        def kaptMain = file("${project.buildDir}/generated/source/kapt/main")
+        sourceDirs += kaptMain
+        generatedSourceDirs += kaptMain
+
+        outputDir file("${project.buildDir}/classes/main")
+        testOutputDir file("${project.buildDir}/classes/test")
+    }
+}
+
+
+dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    kapt 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+}
+compileJava.dependsOn(processResources)
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict"]
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict"]
+        jvmTarget = "1.8"
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+group = 'ru.ibelozor.test'
